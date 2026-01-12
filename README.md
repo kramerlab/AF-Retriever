@@ -1,6 +1,5 @@
 # Autofocus-Retriever (AF-Retriever)
-
-
+For a detailed description of AF-Retriever, please read our papter at [https://arxiv.org/pdf/2505.09246](https://arxiv.org/pdf/2505.09246)
 
 ## Getting Started
 
@@ -82,4 +81,5 @@ python -m main --dataset prime --split human_generated_eval
 ```
 ## External References:
 [0] STaRK [https://github.com/snap-stanford/stark](https://github.com/snap-stanford/stark)
+
 
