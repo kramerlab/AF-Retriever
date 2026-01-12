@@ -1,0 +1,100 @@
+{
+	"llm": {
+		"llm_max_output_tokens": 16384,
+		"llm_temperature": null,
+		"llm_do_sample": false,
+		"llm_top_p": null,
+		"llm_seed": 42,
+		"llm_default_system_message": "You are a helpful assistant. You give brief, precise answers in a machine-parseable format without explanations.",
+		"llm_parallelization_mode": "multiprocessing",
+        "__llm_parallelization_mode_OPTIONS:": "sequential, multiprocessing, batch_processing",
+        "gpt-oss-120b_path": "",
+
+        "llm_api_url": "http://localhost:8001/v1/",
+        "llm_access_mode": "api",
+        "__llm_access_mode_OPTIONS": "api, local",
+        "llm_model":  "openai/gpt-oss-120b",
+        "llm_reasoning_effort": "low",
+		"add_rel": true,
+		"compact_docs": false
+	},
+
+  "general": {
+    "default_experiment_name": "unnamed_experiment",
+	"reranking_method": "listwise",
+
+    "emb_model": "text-embedding-3-small",
+    "emb_model_api_url": "https://api.openai.com/v1/",
+
+    "output_path": "output",
+    "embeddings_path": "emb",
+
+    "skb_path": "stark/skb",
+    "qa_path": "stark/qa",
+
+    "k": 20,
+    "l_max": 3,
+	"alpha": 13,
+
+    "vss_cutoff": 0.0,
+    "offline_mode": false,
+
+    "step4_emb_incl_rels":  false,
+    "step6_emb_incl_rels":  false,
+    "step7_emb_incl_rels":  true
+  },
+  "prime": {
+    "type_of_kb": "medical",
+    "nodes_to_consider": ["effect/phenotype", "disease", "anatomy", "cellular_component","exposure", "gene/protein","drug", "molecular_function", "pathway", "biological_process"],
+    "edge_type_long2short": {
+      "gene/protein_interacts_with_gene/protein": "ppi",
+      "gene/protein_is_carrier_of_drug": "carrier",
+      "drug_targets_enzyme_gene/protein": "enzyme",
+      "drug_targets_gene/protein": "target",
+      "gene/protein_transports_drug": "transporter",
+      "drug_indicates_disease": "indication",
+      "drug_contraindicates_disease": "contraindication",
+      "drug_has_off-label_use_for_disease": "off-label use",
+      "drug_synergistically_interacts_with_drug": "synergistic interaction",
+      "protein/gene_is_associated_with_effect/phenotype": "associated with",
+      "protein/gene_is_associated_with_disease": "associated with",
+      "is_an_umbrella_term_of": "parent-child",
+      "is_effect/phenotype_of_disease": "phenotype present",
+      "is_not_effect/phenotype_of_disease": "phenotype absent",
+      "effect/phenotype_is_side-effect_of_drug": "side effect",
+      "interacts_with": "interacts with",
+      "exposure_is_linked_to_disease": "linked to",
+      "gene/protein_is_present_in_anatomy": "expression present",
+      "gene/protein_is_not_present_in_anatomy": "expression absent"
+    },
+	"node_properties_dict": {
+        "molecular weight": "molecular_weight"
+	}
+  },
+  "mag": {
+    "type_of_kb": "paper authorship",
+    "nodes_to_consider": ["paper", "author", "institution"],
+    "edge_type_long2short": {
+      "author_affiliated_with_institution": "author___affiliated_with___institution",
+      "paper_cites_paper": "paper___cites___paper",
+      "author_writes_paper": "author___writes___paper"
+    },
+	"node_properties_dict": {
+		"venue": "OriginalVenue",
+		"publication_date": "Date",
+		"publication_year": "Year"
+	}
+  },
+  "amazon": {
+    "type_of_kb": "product recommendation",
+    "nodes_to_consider": ["product", "brand", "color"],
+    "edge_type_long2short": {
+      "product_also_buy_product": "also_buy",
+      "product_also_view_product": "also_view",
+      "product_has_brand": "has_brand",
+      "product_has_color": "has_color"
+    },
+	"node_properties_dict": {
+	}
+  }
+}
