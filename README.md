@@ -56,7 +56,7 @@ Otherwise, leave the default: "skb_path": "auto_download".
 ##### b) Embeddings
 You can download embeddings of all vertices in the STaRK SKBs from OpenAI's model `text-embedding-3-small`
 Download from https://zenodo.org/records/17723545?preview=1&token=eyJhbGciOiJIUzUxMiIsImlhdCI6MTc2NDE3MTI4MSwiZXhwIjoxNzgwMTg1NTk5fQ.eyJpZCI6IjM5N2ZiY2IyLWY0YWYtNGVjNy05MTVkLWIxNGE4ZjJhZTdjYiIsImRhdGEiOnt9LCJyYW5kb20iOiJhMWViMDVjODRiZTI3NzA5M2VkMDBlOTY4MDQwNGZhZCJ9.57ZzX_0I9PavqUz2ItI5FDXdQpOJyAWmwR_Xp5hMVPeOWr6pf8ZwpW-6a6lsMYZ6MRZ_Ud_rmGr3FXzAnBihgw
-Extract the downloaded .zip file in directory "emb", such that, e.g., for the SKB prime, emb/prime/text-embedding-3-small/nodes/node_embeddings_add_rel_not_compact.pt is available.
+Extract the downloaded .zip file in a new directory "emb", such that, e.g., for the SKB prime, emb/prime/text-embedding-3-small/nodes/node_embeddings_add_rel_not_compact.pt is available.
 For each SKB, there exists one file with all embeddings where relations were included in the text exmbeddings, and one file with all embeddings without.
 
 ##### c) Embedding Model and Large Language Model 
@@ -82,3 +82,4 @@ python -m main --dataset prime --split human_generated_eval
 ```
 ## External References:
 [0] STaRK [https://github.com/snap-stanford/stark](https://github.com/snap-stanford/stark)
+
