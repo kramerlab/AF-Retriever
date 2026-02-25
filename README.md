@@ -35,7 +35,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
 The installation of stark-qa includes all other requirements AF-Retriever has. 
 To avoid compatibility issues, specify the langchain version.
 ```bash
-pip install stark-qa langchain==0.0.316
+pip install stark-qa langchain==0.0.316 dotenv
 ```
 In case of compatibility issues, try setting up a pip venv from requirements.txt.
 
@@ -81,6 +81,7 @@ python -m main --dataset prime --split human_generated_eval
 ```
 ## External References:
 [0] STaRK [https://github.com/snap-stanford/stark](https://github.com/snap-stanford/stark)
+
 
 
 
