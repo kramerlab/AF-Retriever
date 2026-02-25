@@ -48,9 +48,7 @@ The init function of `framework.py` loads several prerequisites:
 
 ##### a) QA Datasets and SKBs
 AF-Retriever supports SKBs of the python package `stark_qa.skb` [0] . 
-The SKBs and QA sets are downloaded automatically from huggingface when used. 
-If either is downloaded already, set `skb_path` to the root directory of your SKBs in `configs.json`. 
-Otherwise, leave the default: "skb_path": "auto_download".
+The SKBs and QA sets are downloaded automatically from huggingface when used if they are not in the root directories "skb_path" and "qa_path" in "configs.json" already.
 
 ##### b) Embeddings
 You can download embeddings of all vertices in the STaRK SKBs from OpenAI's model `text-embedding-3-small`
@@ -81,6 +79,7 @@ python -m main --dataset prime --split human_generated_eval
 ```
 ## External References:
 [0] STaRK [https://github.com/snap-stanford/stark](https://github.com/snap-stanford/stark)
+
 
 
 
