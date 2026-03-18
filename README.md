@@ -16,7 +16,7 @@ For a detailed description of AF-Retriever, please read our papter at [https://a
 
 ### Individual Steps:
 #### 1. Python Environment Setup
-The stark-qa package, which allows using the linked knowledge bases, requires Python >=3.8 and <3.12. 
+The stark-qa package, which allows using the linked knowledge bases, requires Python >=3.8 and <3.12 on a linux system. 
 We recommend creating a new virtual environment:
 ```bash
 conda  create -n AF_Retriever_env python=3.11
