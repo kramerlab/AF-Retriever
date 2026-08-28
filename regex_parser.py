@@ -3,6 +3,57 @@ import regex as re
 
 from triplet import TripletEnd, Triplet
 
+# Private-use Unicode code points won't collide with real input
+_MASK = {'(': '\uE000', ')': '\uE001', '[': '\uE002', ']': '\uE003',
+         '{': '\uE004', '}': '\uE005', ':': '\uE006'}
+_UNMASK = {v: k for k, v in _MASK.items()}
+
+_QUOTED_LITERAL = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'')
+
+def mask_structural_chars_in_quotes(cypher_str: str) -> str:
+    """Replace ( ) [ ] { } : found INSIDE quoted literals with placeholder
+    chars so structural regexes don't misparse literal values (e.g. chemical
+    names) as Cypher syntax. Quote characters themselves are left in place."""
+    def _replace(m):
+        s = m.group(0)
+        for ch, ph in _MASK.items():
+            s = s.replace(ch, ph)
+        return s
+    return _QUOTED_LITERAL.sub(_replace, cypher_str)
+
+def unmask_structural_chars(value: str) -> str:
+    for ph, ch in _UNMASK.items():
+        value = value.replace(ph, ch)
+    return value
+
+def parse_conditions_from_cypher(cypher_query: str, triplet_ends: dict[str, TripletEnd],
+                                 properties_dict: dict[str,str]):
+    equals_pattern = re.compile(r'(\w+)\.(\w+)\s*(?:(=(?:~?)|CONTAINS|<|>|<=|>=)\s*(?:[\'"]([^\'"]*)[\'"]|(\w+))|IN\s*(\[[^\]]*\]))')
+
+    atoms = re.findall(equals_pattern, cypher_query)
+    for atom in atoms:
+        var_name, var_property, var_equality, var_value, var_value_word, var_values = atom
+        var_value += var_value_word
+        if var_equality == "<" or var_equality == ">" or var_equality == "<=" or var_equality == ">=":
+            var_value = var_equality + var_value
+        try:
+            var_values = ast.literal_eval(var_values)
+            if var_value != "":
+                var_values.append(var_value.replace("(?i)", ""))
+        except (ValueError, SyntaxError):
+            var_values = [var_value.replace("(?i)", "")]
+
+        if var_name in triplet_ends:
+            if var_property != "":
+                if var_property in properties_dict:
+                    var_property = properties_dict[var_property]
+                if var_property in triplet_ends[var_name].properties:
+                    triplet_ends[var_name].properties[var_property] += "; " + "; ".join(var_values)
+                else:
+                    triplet_ends[var_name].properties[var_property] = "; ".join(var_values)
+
+            if "title" in triplet_ends[var_name].properties or "name" in triplet_ends[var_name].properties:
+                triplet_ends[var_name].is_constant = True
 
 def parse_conditions_from_cypher(cypher_query: str, triplet_ends: dict[str, TripletEnd],
                                  properties_dict: dict[str,str]):
