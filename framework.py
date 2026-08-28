@@ -5,7 +5,8 @@ import regex as re
 from stark_qa import load_skb
 
 from llm_reranker import LLMReranker
-from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher, mask_structural_chars_in_quotes, unmask_structural_chars
+from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher, mask_structural_chars_in_quotes, \
+    unmask_structural_chars
 from stark_qa.load_qa import load_qa
 from optional.load_qa_offline import load_qa_offline
 from stark_qa.skb import SKB
@@ -196,7 +197,6 @@ class Framework:
         cypher_str = cypher_str.split("[FINAL ANSWER:]")[-1].replace("[FINAL ANSWER]", "")
         cypher_str = cypher_str.strip("´`\n ;")
         cypher_str = mask_structural_chars_in_quotes(cypher_str)
-            
         cypher_str_split = cypher_str.split("RETURN")
         if len(cypher_str_split) != 2:
             return Step3RegexResult(None, None, None, None,
@@ -208,6 +208,7 @@ class Framework:
         triplets, symbols = parse_cypher_to_triplets(match_part, rel_dict, properties_dict, node_type_list,
                                                      skip_triplets_w_invalid_rel_type, skip_symbols_w_invalid_type)
         parse_conditions_from_cypher(match_part, symbols, properties_dict)
+
         for symbol in symbols.values():
             for k, v in list(symbol.properties.items()):
                 symbol.properties[k] = unmask_structural_chars(v)
@@ -287,12 +288,14 @@ class Framework:
             else:
                 target_name = f"type: {symbol.node_type}; "
 
+            target_name_orig = None
             for property_name in symbol.properties:
                 property_val = symbol.properties[property_name]
                 if property_name in self.settings.configs.get("node_properties_dict").keys():
                     property_name = self.settings.configs.get("node_properties_dict")[property_name]
                 if property_name == "title" or property_name == "name":
                     target_name += f"{property_name}: {property_val}; "
+                    target_name_orig = property_val
                 else:
                     new_candidates = []
                     if property_val[0] == "<" or property_val[0] == ">":
@@ -374,7 +377,8 @@ class Framework:
                     enable_vss=self.settings.get("vss_cutoff") < 1.0,
                     cutoff_vss=self.settings.get("vss_cutoff"),
                     l_max = self.settings.get("l_max"),
-                    emb_incl_rels=self.settings.get("step4_emb_incl_rels")
+                    emb_incl_rels=self.settings.get("step4_emb_incl_rels"),
+                    target_alias=target_name_orig
                 )
                 if len(candidates) == 0:
                     candidates = candidates_sorted
