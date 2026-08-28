@@ -192,7 +192,7 @@ class SKBbridge:
 
     def find_closest_nodes_w_cutoff(self, target_name: str, target_type: str = None, logger: Logger = None,
                                     enable_vss: bool = False, cutoff_vss: float = None, l_max: int = 0,
-                                    emb_incl_rels=True) -> list[int]:
+                                    emb_incl_rels=True, target_alias = None) -> list[int]:
         """
         Find node IDs whose aliases match or are similar to `target_name`, optionally augmented with vector similarity search.
 
@@ -205,7 +205,7 @@ class SKBbridge:
         Parameters
         ----------
         target_name : str
-            The alias string to search for (case-insensitive).
+            The alias string to search for with VSS (case-insensitive).
         target_type : str, optional
             The node type to restrict the search to. If None, searches across all node types.
         logger : logging.Logger, optional
@@ -220,6 +220,8 @@ class SKBbridge:
             If 0, returns all exact matches + VSS results (up to the total number of nodes in the dictionary).
         emb_incl_rels : bool, default True
             Whether to include relational context in the node embeddings during VSS.
+        target_alias: str, optional
+            The alias string to search for by string matching (case-insensitive).
 
         Returns
         -------
@@ -255,6 +257,12 @@ class SKBbridge:
         else:
             node_dict = self.nodes_alias2id[target_type]
 
+        if target_alias is not None:
+            target_name_vss = target_name
+            target_name = target_alias
+        else:
+            target_name_vss = target_name
+
         nodes_found = []
         nodes_direct_match = []
         num_found_key_match = 0
@@ -279,7 +287,8 @@ class SKBbridge:
         else:
             print(f"Nodes with matching alias for {target_name.lower()} directly found in database: {nodes_found}.")
 
-        # VSS, if it is enabled. And if there are not enough direct matches found already or llm_activation is enabled
+        # VSS, if it is enabled and if there are not enough direct matches found already or llm_activation is enabled
+        target_name = target_name_vss
         if enable_vss and len(nodes_found) < l_max:
             node_types_to_consider = self.settings.get("nodes_to_consider")
             vss_nodes_found, vss_scores = self.vss.get_top_k_nodes(search_str=target_name, k=l_max, node_type=target_type,
