@@ -5,7 +5,7 @@ import regex as re
 from stark_qa import load_skb
 
 from llm_reranker import LLMReranker
-from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher
+from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher, mask_structural_chars_in_quotes, unmask_structural_chars
 from stark_qa.load_qa import load_qa
 from optional.load_qa_offline import load_qa_offline
 from stark_qa.skb import SKB
@@ -195,6 +195,8 @@ class Framework:
 
         cypher_str = cypher_str.split("[FINAL ANSWER:]")[-1].replace("[FINAL ANSWER]", "")
         cypher_str = cypher_str.strip("´`\n ;")
+        cypher_str = mask_structural_chars_in_quotes(cypher_str)
+            
         cypher_str_split = cypher_str.split("RETURN")
         if len(cypher_str_split) != 2:
             return Step3RegexResult(None, None, None, None,
@@ -206,6 +208,9 @@ class Framework:
         triplets, symbols = parse_cypher_to_triplets(match_part, rel_dict, properties_dict, node_type_list,
                                                      skip_triplets_w_invalid_rel_type, skip_symbols_w_invalid_type)
         parse_conditions_from_cypher(match_part, symbols, properties_dict)
+        for symbol in symbols.values():
+            for k, v in list(symbol.properties.items()):
+                symbol.properties[k] = unmask_structural_chars(v)
 
         target_var_name = return_part.split(".")[0].strip()
         target_type_pattern = re.compile(r'\b' + target_var_name + r'\b:([^\s)]+)')
