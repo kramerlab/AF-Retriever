@@ -16,7 +16,7 @@ from triplet import TripletEnd, Triplet
 def calculate_metrics(answer_ids, ground_truth_ids) -> dict[str, float]:
     hit_1, hit_5, hit_20, hit_40, hit_50 = 0, 0, 0, 0, 0
     reciprocal_rank, reciprocal_rank_20 = 0.0, 0.0
-    hits = 0
+    hits_to_20 = 0
     for i in range(len(answer_ids)):
         if answer_ids[i] in ground_truth_ids:
             if i < 1:
@@ -24,7 +24,7 @@ def calculate_metrics(answer_ids, ground_truth_ids) -> dict[str, float]:
             if i < 5:
                 hit_5 = 1
             if i < 20:
-                hits += 1
+                hits_to_20 += 1
                 hit_20 = 1
             if i < 40:
                 hit_40 = 1
@@ -34,7 +34,7 @@ def calculate_metrics(answer_ids, ground_truth_ids) -> dict[str, float]:
                 reciprocal_rank = 1.0 / (i + 1)
             if reciprocal_rank_20 <= 0.0 and i < 20:
                 reciprocal_rank_20 = 1.0 / (i + 1)
-    recall_20 = hit_20 / min(20, len(ground_truth_ids))
+    recall_20 = hits_to_20 / min(20, len(ground_truth_ids))
     return {
         "hit_1": hit_1,
         "hit_5": hit_5,
