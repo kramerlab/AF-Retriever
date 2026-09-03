@@ -283,10 +283,7 @@ class Framework:
 
         for symbol in valid_symbols.values():
             candidates = set()
-            if symbol.node_type is None:
-                target_name = ""
-            else:
-                target_name = f"type: {symbol.node_type}; "
+            target_name = ""
 
             target_name_orig = None
             for property_name in symbol.properties:
