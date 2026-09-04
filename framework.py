@@ -45,7 +45,8 @@ class Framework:
         # copy config file to results file
         new_configs_path = abs_full_output_path
         if (abs_full_output_path / self.settings.configs_path.parts[-1]).exists():
-            new_configs_path /= (self.settings.configs_path.parts[-1] + datetime.datetime.now().strftime("_%Y-%m-%d_%H-%M-%S"))
+            new_configs_path /= (self.settings.configs_path.parts[-1].replace(".json","") +
+                                 datetime.datetime.now().strftime("_%Y-%m-%d_%H-%M-%S") + ".json")
         shutil.copy(self.settings.configs_path, new_configs_path)
 
         # load llm bridge
