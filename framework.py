@@ -5,8 +5,7 @@ import regex as re
 from stark_qa import load_skb
 
 from llm_reranker import LLMReranker
-from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher, mask_structural_chars_in_quotes, \
-    unmask_structural_chars
+from regex_parser import parse_cypher_to_triplets, parse_conditions_from_cypher
 from stark_qa.load_qa import load_qa
 from optional.load_qa_offline import load_qa_offline
 from stark_qa.skb import SKB
@@ -197,7 +196,6 @@ class Framework:
 
         cypher_str = cypher_str.split("[FINAL ANSWER:]")[-1].replace("[FINAL ANSWER]", "")
         cypher_str = cypher_str.strip("´`\n ;")
-        cypher_str = mask_structural_chars_in_quotes(cypher_str)
         cypher_str_split = cypher_str.split("RETURN")
         if len(cypher_str_split) != 2:
             return Step3RegexResult(None, None, None, None,
@@ -206,13 +204,10 @@ class Framework:
 
         match_part, return_part = cypher_str_split
 
-        triplets, symbols = parse_cypher_to_triplets(match_part, rel_dict, properties_dict, node_type_list,
-                                                     skip_triplets_w_invalid_rel_type, skip_symbols_w_invalid_type)
-        parse_conditions_from_cypher(match_part, symbols, properties_dict)
-
-        for symbol in symbols.values():
-            for k, v in list(symbol.properties.items()):
-                symbol.properties[k] = unmask_structural_chars(v)
+        triplets, symbols, warnings = parse_cypher_to_triplets(match_part, rel_dict, properties_dict, node_type_list,
+                                                     skip_triplets_w_invalid_rel_type, skip_symbols_w_invalid_type,
+                                                     mask_quoted_literals = True)
+        parse_conditions_from_cypher(match_part, symbols, properties_dict, mask_quoted_literals = True)
 
         target_var_name = return_part.split(".")[0].strip()
         target_type_pattern = re.compile(r'\b' + target_var_name + r'\b:([^\s)]+)')
@@ -220,14 +215,13 @@ class Framework:
         if len(target_type) == 0:
             return Step3RegexResult(None, None, None, None,
                                     "ERROR: No target type in Cypher string found. Using None.", target_var_not_in_triplets)
-        warnings = ""
         target_type = target_type[0]
         if target_type not in node_type_list:
-            warnings += f"WARNING: Target type {target_type} not in node type list."
+            warnings = f"WARNING: Target type {target_type} not in node type list. " + warnings
             target_type = None
         if target_var_name not in symbols:
             symbols[target_var_name] = TripletEnd(target_var_name, target_type, is_constant=False)
-            warnings += "WARNING: Target variable not in triplets."
+            warnings = "WARNING: Target variable not in triplets. " + warnings
             target_var_not_in_triplets = True
         else:
             symbols[target_var_name].node_type = target_type
@@ -565,3 +559,4 @@ class Framework:
     def validate_step8(self, step8_result: Step8FinalRerankerResult, ground_truths: list[int]):
         step8_result.ground_truth_str = self.skb_b.entity_ids2name(ground_truths, 10)
         step8_result.ground_truths = ground_truths
+        
